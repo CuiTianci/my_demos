@@ -11,13 +11,13 @@ class JoyStick extends StatefulWidget {
   final stickSide; //摇杆区域边长
   final stickBgRadius; //摇杆盘半径
   final stickRadius; //摇杆指示器半径
-  final Function(Offset) onSpeedChanged;
+  final Function(Offset) onSpeedChanged; //速度变化回调
 
   JoyStick(
       {@required this.onSpeedChanged,
-        this.stickSide = 300.0,
-        this.stickBgRadius = 50.0,
-        this.stickRadius = 20.0}) {
+      this.stickSide = 300.0,
+      this.stickBgRadius = 50.0,
+      this.stickRadius = 20.0}) {
     assert(this.stickRadius > 0.0);
     assert(this.stickBgRadius > 0.0);
     assert(this.stickRadius > 0.0);
@@ -28,9 +28,9 @@ class JoyStick extends StatefulWidget {
 }
 
 class _JoyStickState extends State<JoyStick> {
-  var _stickBgOffset;
-  var _stickOffset;
-  var _defaultStickBgOffset;
+  var _stickBgOffset; //遥感盘圆心
+  var _stickOffset; //摇杆圆心
+  var _defaultStickBgOffset; //摇杆盘默认圆心，用于结束滑动式回滚到初始位置
   var _defaultStickOffset;
   var _isDraggingEffectively = false; //有效拖拽
 
@@ -38,6 +38,7 @@ class _JoyStickState extends State<JoyStick> {
   void initState() {
     super.initState();
     _defaultStickBgOffset = Offset(
+        //以触控区的中心作为摇杆初始圆心位置，但Position的坐标，为Widget矩形左上角的位置，因此需要根据圆心坐标和半径求出真正的位置坐标
         sqrt(pow(widget.stickSide / 2 - widget.stickBgRadius, 2)),
         sqrt(pow(widget.stickSide / 2 - widget.stickBgRadius, 2)));
     _defaultStickOffset = Offset(
@@ -58,28 +59,29 @@ class _JoyStickState extends State<JoyStick> {
                 bgOffset.dx <= widget.stickSide - widget.stickBgRadius * 2 &&
                 bgOffset.dy >= 0.0 &&
                 bgOffset.dy <= widget.stickSide - widget.stickBgRadius * 2) {
-              _isDraggingEffectively = true;
+              _isDraggingEffectively =
+                  true; //避免摇杆显示不全，因此实际触控区比GestureDetector小一点，标记属于有效滑动。
               setState(() {
                 _stickBgOffset = bgOffset;
                 _stickOffset = _calculateStickOffset(
-                    detail.localPosition); //摇杆盘满足条件时，摇杆必定满足条件
+                    detail.localPosition); //摇杆盘满足条件时，摇杆必定满足条件（因为摇杆必定在内部）
               });
             }
           },
           onPanCancel: () {
             print("panCancel");
           },
-          onPanEnd: (_) {
+          onPanEnd: (_) {//滑动结束
             _isDraggingEffectively = false;
-            widget.onSpeedChanged(Offset(0.0, 0.0));
-            setState(() {
+            widget.onSpeedChanged(Offset(0.0, 0.0));//速度变为0
+            setState(() {//位置回滚
               _stickBgOffset = _defaultStickBgOffset;
               _stickOffset = _defaultStickOffset;
             });
           },
           onPanUpdate: (DragUpdateDetails details) {
             if (!_isDraggingEffectively) return;
-            if (_isStickInBg(details.localPosition)) {
+            if (_isStickInBg(details.localPosition)) {//当触控点在遥感盘内部-摇杆半径时
               setState(() {
                 _stickOffset = _calculateStickOffset(details.localPosition);
               });
@@ -121,6 +123,7 @@ class _JoyStickState extends State<JoyStick> {
   }
 
   ///通过圆心位置求摇杆盘实际位置
+  ///已知圆心和半径，可求。
   _calculateBgOffset(fingerOffset) {
     var dx = sqrt(pow(fingerOffset.dx - widget.stickBgRadius, 2)) *
         (fingerOffset.dx > widget.stickBgRadius ? 1 : -1);
@@ -129,7 +132,7 @@ class _JoyStickState extends State<JoyStick> {
     return Offset(dx, dy);
   }
 
-  ///判断手指触控点是否处于可触控区域
+  ///判断如果以当前触控点为圆心，摇杆会不会超出遥感盘范围
   _isStickInBg(fingerOffset) {
     var radius = widget.stickBgRadius - widget.stickRadius;
     var bgX = _stickBgOffset.dx + widget.stickBgRadius; //遥感盘的圆心
@@ -139,6 +142,7 @@ class _JoyStickState extends State<JoyStick> {
   }
 
   ///通过圆心位置求摇杆位置
+  ///已知圆心和半径，可求。
   _calculateStickOffset(fingerOffset) {
     var dx = sqrt(pow(fingerOffset.dx - widget.stickRadius, 2)) *
         (fingerOffset.dx > widget.stickRadius ? 1 : -1);
@@ -189,7 +193,7 @@ class _JoyStickState extends State<JoyStick> {
     var unitX = maxX / 5; //单位长度
     var x = sqrt(pow(stickOx - oX1, 2) + pow(stickOy - oY1, 2)); //实际位移
     var v = unitX == 0.0 ? 0.0 : x / unitX; //速度
-    var alpha = _getRadToPositiveX(Offset(stickOx, stickOy), Offset(oX1, oY1));
+    var alpha = _getRadToPositiveX(Offset(stickOx, stickOy), Offset(oX1, oY1));//获得速度与X轴正向夹角
     var vX = v * cos(alpha);
     var vY = v * sin(alpha);
     widget.onSpeedChanged(Offset(vX, vY));
@@ -226,6 +230,8 @@ class _JoyStickState extends State<JoyStick> {
   }
 }
 
+
+///使用示例
 class JoyStickDemo extends StatefulWidget {
   @override
   _JoyStickDemoState createState() => _JoyStickDemoState();

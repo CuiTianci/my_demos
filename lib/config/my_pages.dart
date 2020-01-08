@@ -12,6 +12,9 @@ final kMyPages = <MyPage>[
     title: 'JoyStick',
     date: '2020-01-06',
     desc: 'GestureDetector的使用',
+    blogLink: 'https://blog.csdn.net/weixin_43879272/article/details/103882323',
+    repoLink:
+        'https://github.com/CuiTianci/my_demos/blob/master/lib/widgets/joy_stick.dart',
   )
 ];
 
@@ -23,6 +26,7 @@ class MyPage extends StatelessWidget {
   final desc;
   final mPageName;
   final blogLink;
+  final repoLink;
 
   const MyPage(
       {Key key,
@@ -32,7 +36,8 @@ class MyPage extends StatelessWidget {
       @required this.date,
       @required this.desc,
       this.mPageName,
-      this.blogLink = 'https://www.baidu.com'});//TODO 修改链接
+      this.blogLink = 'https://blog.csdn.net/weixin_43879272',
+      this.repoLink = 'https://github.com/CuiTianci'});
 
   String get pageName =>
       null != mPageName ? mPageName : child.runtimeType.toString();
@@ -51,11 +56,13 @@ class MyPage extends StatelessWidget {
                 icon: Icon(Icons.code),
                 onPressed: () => Navigator.push(context,
                     MaterialPageRoute(builder: (BuildContext context) {
-                      return SourceCodePage(title, sourceCodePath,blogLink);
-                    })),
+                  return SourceCodePage(
+                      title, sourceCodePath, blogLink, repoLink);
+                })),
               ),
             ),
-          ),Positioned(
+          ),
+          Positioned(
             top: 0.0,
             left: 0.0,
             child: SafeArea(
@@ -75,8 +82,9 @@ class SourceCodePage extends StatelessWidget {
   final title;
   final filePath;
   final blogLink;
+  final repoLink;
 
-  SourceCodePage(this.title, this.filePath,this.blogLink);
+  SourceCodePage(this.title, this.filePath, this.blogLink, this.repoLink);
 
   @override
   Widget build(BuildContext context) {
@@ -99,13 +107,20 @@ class SourceCodePage extends StatelessWidget {
         throw 'Could not launch $url';
       }
     }
+
     return [
       IconButton(
-        icon: Icon(Icons.assignment),
+        icon: Image.asset('assets/images/csdn.png'),
         onPressed: () {
           _launchURL(blogLink);
         },
-      )
+      ),
+      IconButton(
+        icon: Image.asset('assets/images/github.png'),
+        onPressed: () {
+          _launchURL(repoLink);
+        },
+      ),
     ];
   }
 }
