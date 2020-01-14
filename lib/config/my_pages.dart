@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:my_demos/pages/home_page.dart';
+import 'package:my_demos/widgets/flutter_cn.dart';
 import 'package:my_demos/widgets/joy_stick.dart';
 import 'package:my_demos/widgets/slide_pic.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -25,6 +26,14 @@ final kMyPages = <MyPage>[
     desc: '用NotificationListener模仿猫眼电影首页广告滑动',
     blogLink: 'https://blog.csdn.net/weixin_43879272/article/details/103943009',
     repoLink: 'https://github.com/CuiTianci/my_demos/blob/master/lib/widgets/slide_pic.dart',
+  ),MyPage(
+    sourceCodePath: 'lib/widgets/flutter_cn.dart',
+    child: FlutterCN(),
+    date: '2020-01-14',
+    title: 'FlutterWeb',
+    desc: '浅尝辄止：Flutter开发Web的第0次尝试',
+    blogLink: 'https://blog.csdn.net/weixin_43879272/article/details/103967636',
+    repoLink: 'https://github.com/CuiTianci/my_demos/blob/master/lib/widgets/flutter_cn.dart',
   )
 ];
 
